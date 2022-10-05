@@ -73,6 +73,7 @@ set(ZIG_SHARED_LLVM off CACHE BOOL "Prefer linking against shared LLVM libraries
 set(ZIG_STATIC_LLVM off CACHE BOOL "Prefer linking against static LLVM libraries")
 set(ZIG_STATIC_ZLIB off CACHE BOOL "Prefer linking against static zlib")
 set(ZIG_USE_CCACHE off CACHE BOOL "Use ccache if available")
+set(ZIG_FIX_SYSTEM_LIBS off CACHE BOOL "fix llvm-config --system-libs list")
 
 if(CCACHE_PROGRAM AND ZIG_USE_CCACHE)
     SET_PROPERTY(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
@@ -128,6 +129,12 @@ if(APPLE AND ZIG_STATIC)
         /usr/local/opt/ncurses/lib
         /opt/homebrew/opt/ncurses/lib)
     list(APPEND LLVM_LIBRARIES "${CURSES}")
+endif()
+
+if(ZIG_FIX_SYSTEM_LIBS)
+    list(FILTER LLVM_LIBRARIES EXCLUDE REGEX "-lzstd\\.so.*")
+    find_library(ZSTD zstd REQUIRED)
+    list(APPEND LLVM_LIBRARIES "${ZSTD}")
 endif()
 
 set(ZIG_CPP_LIB_DIR "${CMAKE_BINARY_DIR}/zigcpp")
