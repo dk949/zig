@@ -138,6 +138,7 @@ pub const Token = struct {
         tilde,
         number_literal,
         doc_comment,
+        pragma,
         container_doc_comment,
         keyword_addrspace,
         keyword_align,
@@ -200,6 +201,7 @@ pub const Token = struct {
                 .builtin,
                 .number_literal,
                 .doc_comment,
+                .pragma,
                 .container_doc_comment,
                 => null,
 
@@ -384,6 +386,7 @@ pub const Tokenizer = struct {
         line_comment,
         doc_comment_start,
         doc_comment,
+        pragma_comment,
         int,
         int_exponent,
         int_period,
@@ -1113,6 +1116,11 @@ pub const Tokenizer = struct {
                         result.tag = .container_doc_comment;
                         state = .doc_comment;
                     },
+                    '$' => {
+                        result.tag = .pragma;
+                        state = .pragma_comment;
+                        std.log.info("############### Starting to parse pragma ##################", .{});
+                    },
                     '\n' => {
                         state = .start;
                         result.loc.start = self.index + 1;
@@ -1154,6 +1162,17 @@ pub const Tokenizer = struct {
                     0, '\n' => break,
                     '\t', '\r' => {},
                     else => self.checkLiteralCharacter(),
+                },
+                .pragma_comment => switch (c) {
+                    0, '\n' => {
+                        std.log.info("################ Done parsing pragma ################", .{});
+                        break;
+                    },
+                    '\t', '\r' => {},
+                    else => {
+                        std.log.info("################ Parsing pragma ################", .{});
+                        self.checkLiteralCharacter();
+                    },
                 },
                 .int => switch (c) {
                     '.' => state = .int_period,

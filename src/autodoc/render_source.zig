@@ -79,7 +79,7 @@ pub fn genHtml(
         \\        text-align: right;
         \\        color: #999;
         \\      }
-        \\      
+        \\
         \\      .line {
         \\        width: 100%;
         \\        display: inline-block;
@@ -273,6 +273,7 @@ pub fn tokenizeAndPrintRaw(
 
             .doc_comment,
             .container_doc_comment,
+            .pragma,
             => {
                 try out.writeAll("<span class=\"tok-comment\">");
                 try writeEscaped(out, src[token.loc.start..token.loc.end]);
